@@ -49,8 +49,23 @@ form.addEventListener("submit", async event => {
     const response = await fetch("/api/ai/store-design", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Could not generate the concept.");
+    const responseText = await response.text();
+
+let data;
+
+try {
+  data = JSON.parse(responseText);
+} catch {
+  console.error("Muconnect AI returned a non-JSON response:", responseText);
+
+  throw new Error(
+    `Muconnect AI server returned an invalid response (HTTP ${response.status}). Check the Render logs.`
+  );
+}
+
+if (!response.ok) {
+  throw new Error(data.error || `Request failed (HTTP ${response.status}).`);
+}
     applyDesign(data.design);
     statusEl.textContent = "Your AI design direction is ready. Next we will connect accounts, products, and saved designs.";
   } catch (error) {
