@@ -56,13 +56,14 @@ let data;
 try {
   data = JSON.parse(responseText);
 } catch {
-  console.error("Muconnect AI returned a non-JSON response:", responseText);
+  console.error("Muconnect AI raw response:", JSON.stringify(responseText));
 
   throw new Error(
-    `Muconnect AI server returned an invalid response (HTTP ${response.status}). Check the Render logs.`
+    `Invalid AI response (HTTP ${response.status}). Response received: ${
+      responseText.trim().slice(0, 200) || "[EMPTY RESPONSE]"
+    }`
   );
 }
-
 if (!response.ok) {
   throw new Error(data.error || `Request failed (HTTP ${response.status}).`);
 }
